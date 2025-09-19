@@ -1,0 +1,183 @@
+### List users (page 1, default 10)
+GET http://localhost:4000/users
+
+### List users (page 2, limit 3)
+GET http://localhost:4000/users?page=2&limit=3
+
+### Search users by name or email
+GET http://localhost:4000/users?q=alex
+
+### 1) Login first (stores HTTP-only cookie for the next requests)
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "VeryStrong123"
+}
+
+### 2) Create Admin (skip if already exists)
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Admin",
+  "lastName": "User",
+  "email": "admin@example.com",
+  "password": "VeryStrong123",
+  "phone": "+1 214-555-0100",
+  "role": "Admin",
+  "status": "Active"
+}
+
+### 3) Create User 1
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Sri",
+  "lastName": "Gabbita",
+  "email": "sri@example.com",
+  "password": "securePass123",
+  "role": "User",
+  "status": "Active"
+}
+
+### 4) Create User 2
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Taylor",
+  "lastName": "Swift",
+  "email": "taylor@example.com",
+  "password": "taylorPass123",
+  "phone": "+1 512-555-0101",
+  "role": "User",
+  "status": "Active"
+}
+
+### 5) Create User 3
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Alex",
+  "lastName": "Jordan",
+  "email": "alex@example.com",
+  "password": "alexPass123",
+  "phone": "+1 469-555-0102",
+  "role": "User",
+  "status": "Active"
+}
+
+### 6) Create User 4
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Jamie",
+  "lastName": "Lee",
+  "email": "jamie@example.com",
+  "password": "jamiePass123",
+  "role": "User",
+  "status": "Inactive"
+}
+
+### 7) Create User 5
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Priya",
+  "lastName": "Shah",
+  "email": "priya@example.com",
+  "password": "priyaPass123",
+  "phone": "+1 972-555-0103",
+  "role": "User",
+  "status": "Active"
+}
+
+### 8) Create User 6
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Miguel",
+  "lastName": "Santos",
+  "email": "miguel@example.com",
+  "password": "miguelPass123",
+  "phone": "+1 281-555-0104",
+  "role": "User",
+  "status": "Active"
+}
+
+### 9) Create User 7
+POST http://localhost:4000/users
+Content-Type: application/json
+
+{
+  "firstName": "Ava",
+  "lastName": "Nguyen",
+  "email": "ava@example.com",
+  "password": "avaPass123",
+  "role": "User",
+  "status": "Active"
+}
+
+### 10) List all users (verify inserts)
+GET http://localhost:4000/users
+
+### 11) (Optional) Logout
+POST http://localhost:4000/auth/logout
+
+### 12) Try list as a normal user (should fail with 403 Forbidden)
+# First logout to clear admin cookie
+POST http://localhost:4000/auth/logout
+
+### 13) Login as User (Sri)
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "sri@example.com",
+  "password": "securePass123"
+}
+
+### 14) User: try to list all users ❌ should be Forbidden
+GET http://localhost:4000/users
+
+### 15) User: get own profile ✅ should work
+# Replace "2" with Sri's actual user ID from DB
+GET http://localhost:4000/users/3
+
+### 16) User: update own profile ✅ should work
+PATCH http://localhost:4000/users/2
+Content-Type: application/json
+
+{
+  "phone": "214-555-0300"
+}
+
+### 17) User: try to delete another user ❌ should be Forbidden
+DELETE http://localhost:4000/users/1
+
+### 18) Logout User
+POST http://localhost:4000/auth/logout
+
+### 19) Login again as Admin
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "VeryStrong123"
+}
+
+### 20) Admin: delete a user ✅ should work
+# Replace "3" with a valid User ID from DB (Taylor for example)
+DELETE http://localhost:4000/users/3
+
+### 21) Admin: list all users ✅ should work
+GET http://localhost:4000/users
+

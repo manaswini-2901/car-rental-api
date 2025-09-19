@@ -1,0 +1,144 @@
+################################################################################
+# BOOKINGS – Multi-user demo flow
+# Tip: make sure VS Code setting "Rest Client: Enable Cookies" is ON
+################################################################################
+
+### 0) (Optional) List cars to confirm IDs
+GET http://localhost:4000/cars
+
+
+
+########################
+# A) Sri creates bookings
+########################
+
+### A1) Login as Sri
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "sri@example.com",
+  "password": "securePass123"
+}
+
+### A2) Sri books Car 2 (valid dates)
+POST http://localhost:4000/bookings
+Content-Type: application/json
+
+{
+  "carId": 2,
+  "startDate": "2025-10-01",
+  "endDate": "2025-10-04"
+}
+
+### A3) Sri books Car 3 (different dates)
+POST http://localhost:4000/bookings
+Content-Type: application/json
+
+{
+  "carId": 3,
+  "startDate": "2025-10-10",
+  "endDate": "2025-10-12"
+}
+
+### A4) Sri tries to overlap Car 2 on same range (should FAIL with 400)
+POST http://localhost:4000/bookings
+Content-Type: application/json
+
+{
+  "carId": 2,
+  "startDate": "2025-10-02",
+  "endDate": "2025-10-03"
+}
+
+### A5) Sri lists (should see ONLY Sri's bookings)
+GET http://localhost:4000/bookings
+
+### A6) (Optional) Sri cancels one booking (replace :id with a booking Sri owns)
+PATCH http://localhost:4000/bookings/1/cancel
+
+### A7) Logout Sri
+POST http://localhost:4000/auth/logout
+
+
+
+############################
+# B) Taylor creates bookings
+############################
+
+### B1) Login as Taylor
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "taylor@example.com",
+  "password": "taylorPass123"
+}
+
+### B2) Taylor books Car 2 on non-overlapping dates (allowed)
+POST http://localhost:4000/bookings
+Content-Type: application/json
+
+{
+  "carId": 2,
+  "startDate": "2025-10-05",
+  "endDate": "2025-10-07"
+}
+
+### B3) Taylor books Car 1
+POST http://localhost:4000/bookings
+Content-Type: application/json
+
+{
+  "carId": 1,
+  "startDate": "2025-10-15",
+  "endDate": "2025-10-16"
+}
+
+### B4) Taylor lists (should see ONLY Taylor's bookings)
+GET http://localhost:4000/bookings
+
+### B5) (Optional) Taylor cancels one of theirs (replace :id)
+PATCH http://localhost:4000/bookings/2/cancel
+
+### B6) Logout Taylor
+POST http://localhost:4000/auth/logout
+
+
+
+############################
+# C) Admin reviews & manages
+############################
+
+### C1) Login as Admin
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "VeryStrong123"
+}
+
+### C2) Admin lists ALL bookings (should see Sri + Taylor + statuses)
+GET http://localhost:4000/bookings?page=1&limit=10
+
+### C3) Admin filters: only Sri's bookings (replace userId with Sri's id)
+GET http://localhost:4000/bookings?userId=2
+
+### C4) Admin filters: by carId (e.g., carId=2)
+GET http://localhost:4000/bookings?carId=2
+
+### C5) Admin filters: Cancelled bookings only
+GET http://localhost:4000/bookings?status=Cancelled
+
+### C6) Admin views a specific booking (replace :id)
+GET http://localhost:4000/bookings/1
+
+### C7) Admin cancels someone else's booking (allowed)
+PATCH http://localhost:4000/bookings/1/cancel
+
+### C8) Admin hard-deletes a booking (allowed)
+DELETE http://localhost:4000/bookings/1
+
+### C9) Final list
+GET http://localhost:4000/bookings

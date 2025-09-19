@@ -1,0 +1,12 @@
+### Login (sets HTTP-only cookie; enable cookies in VS Code REST Client settings)
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "sri@example.com",
+  "password": "securePass123"
+}
+
+### Logout (clears cookie)
+POST http://localhost:4000/auth/logout
+
