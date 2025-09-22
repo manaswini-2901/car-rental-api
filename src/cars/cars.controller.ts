@@ -27,25 +27,23 @@ export class CarsController {
     return this.cars.create(body);
   }
 
-  // --- ALL LOGGED IN: list cars with filters
+  // --- ALL LOGGED IN: list cars with flexible backend filtering
   @UseGuards(AuthGuard)
   @Get()
   list(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
     @Query('q') q?: string,
+    @Query('brand') brand?: string,
+    @Query('min') min?: string,
+    @Query('max') max?: string,
     @Query('available') available?: string,
-    @Query('minPrice') minPrice?: string,
-    @Query('maxPrice') maxPrice?: string,
   ) {
-    return this.cars.findPaged(
-      Number(page) || 1,
-      Number(limit) || 10,
-      q?.trim(),
-      available !== undefined ? available === 'true' : undefined,
-      minPrice ? Number(minPrice) : undefined,
-      maxPrice ? Number(maxPrice) : undefined,
-    );
+    return this.cars.findFiltered({
+      q,
+      brand,
+      min: min ? Number(min) : undefined,
+      max: max ? Number(max) : undefined,
+      available: available === 'true' ? true : available === 'false' ? false : undefined,
+    });
   }
 
   // --- ALL LOGGED IN: view one car

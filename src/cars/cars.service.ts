@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike, Between } from 'typeorm';
+import { Repository, ILike, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { Car } from './car.entity';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
@@ -14,29 +14,40 @@ export class CarsService {
     return this.repo.save(car);
   }
 
-  async findPaged(page = 1, limit = 10, q?: string, available?: boolean, minPrice?: number, maxPrice?: number) {
-    const take = Math.max(1, Math.min(100, limit));
-    const skip = (Math.max(1, page) - 1) * take;
-
+  async findFiltered({ q, brand, min, max, available }: {
+    q?: string;
+    brand?: string;
+    min?: number;
+    max?: number;
+    available?: boolean;
+  }) {
     const where: any = {};
-    if (q) {
-      where.model = ILike(`%${q}%`);
-    }
-    if (available !== undefined) {
-      where.available = available;
-    }
-    if (minPrice !== undefined && maxPrice !== undefined) {
-      where.pricePerDay = Between(minPrice, maxPrice);
+
+    if (brand) where.brand = ILike(brand);
+    if (available !== undefined) where.available = available;
+
+    // price
+    if (min != null && max != null) where.pricePerDay = Between(min, max);
+    else if (min != null) where.pricePerDay = MoreThanOrEqual(min);
+    else if (max != null) where.pricePerDay = LessThanOrEqual(max);
+
+    // free-text across brand/model/description
+    if (q && q.trim()) {
+      const s = `%${q.trim()}%`;
+      return this.repo.find({
+        where: [
+          { ...where, brand: ILike(s) },
+          { ...where, model: ILike(s) },
+          { ...where, description: ILike(s) },
+        ],
+        order: { pricePerDay: 'ASC', id: 'ASC' },
+      });
     }
 
-    const [rows, total] = await this.repo.findAndCount({
+    return this.repo.find({
       where,
-      skip,
-      take,
-      order: { createdAt: 'DESC' },
+      order: { pricePerDay: 'ASC', id: 'ASC' },
     });
-
-    return { data: rows, page, limit: take, total, pages: Math.ceil(total / take) };
   }
 
   async findOne(id: number) {

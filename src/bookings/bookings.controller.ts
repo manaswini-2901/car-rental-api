@@ -14,8 +14,8 @@ export class BookingsController {
 
   // Any logged-in user (or admin) creates a booking FOR THEMSELF
   @Post()
-  create(@Req() req: any, @Body() body: CreateBookingDto) {
-    return this.bookings.create(req.userId, body);
+  create(@Req() req: any, @Body() body: { carId: number; startDate: string; endDate: string }) {
+    return this.bookings.create(req.userId, Number(body.carId), body.startDate, body.endDate);
   }
 
   // List:
@@ -57,8 +57,8 @@ export class BookingsController {
   // - User: can cancel own
   // - Admin: can cancel any
   @Patch(':id/cancel')
-  cancel(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
-    return this.bookings.cancel(id, { userId: req.userId, role: req.userRole });
+  async cancel(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.bookings.cancel(id, req.userId);
   }
 
   // Admin hard-delete

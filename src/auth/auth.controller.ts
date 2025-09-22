@@ -1,5 +1,6 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Controller, Post, Body, Res, Get, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from './auth.guard';
+import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -34,5 +35,19 @@ export class AuthController {
     const cookieName = process.env.SESSION_COOKIE_NAME || 'crsid';
     res.clearCookie(cookieName, { path: '/' });
     return { success: true };
+  }
+
+  @Get('me')
+  // Only keep the correct implementation below
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async getProfile(@Req() req: Request) {
+    const { userId, userRole } = req as Request & { userId?: number; userRole?: string };
+    return {
+      id: userId,
+      role: userRole,
+      // add email if you want, but you may need to fetch it from DB
+    };
   }
 }
