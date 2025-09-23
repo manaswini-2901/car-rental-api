@@ -3,14 +3,11 @@ import {
   Body, Param, ParseIntPipe, Query, UseGuards
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Roles } from '../auth/roles.decorator';
-import { RolesGuard } from '../auth/roles.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles('Admin') // class-level: all routes admin-only
+@UseGuards(AuthGuard)
 @Controller('admin/users')
 export class AdminUsersController {
   constructor(private readonly users: UsersService) {}

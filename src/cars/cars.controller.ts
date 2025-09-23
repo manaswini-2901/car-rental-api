@@ -17,6 +17,20 @@ import { AuthGuard } from '../auth/auth.guard';
 export class CarsController {
   constructor(private readonly cars: CarsService) {}
 
+  // --- ADMIN ONLY: set car availability directly
+  @UseGuards(AuthGuard)
+  @Patch(':id/available')
+  async setAvailable(
+    @Req() req: AuthRequest,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { available: boolean }
+  ) {
+    if (req.userRole !== 'Admin') {
+      throw new ForbiddenException({ errors: { auth: 'Only Admin can update car availability' } });
+    }
+    return this.cars.update(id, { available: body.available });
+  }
+
   // --- ADMIN ONLY: create car
   @UseGuards(AuthGuard)
   @Post()

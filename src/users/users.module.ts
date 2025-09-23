@@ -6,13 +6,12 @@ import { UsersController } from './users.controller';
 import { AdminUsersController } from './admin-users.controller';
 import { AuthModule } from '../auth/auth.module';
 import { AuthGuard } from '../auth/auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
 import { Reflector } from '@nestjs/core';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), AuthModule],
   controllers: [UsersController, AdminUsersController],
-  providers: [UsersService, AuthGuard, RolesGuard, Reflector],
+  providers: [UsersService, AuthGuard, Reflector],
   exports: [TypeOrmModule, UsersService],
 })
 export class UsersModule {}

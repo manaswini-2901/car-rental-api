@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { AppModule } from './app.module';
-// Replace the import with:
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 const cookieParser = require('cookie-parser');
 
 async function bootstrap() {
@@ -22,6 +22,19 @@ async function bootstrap() {
       return new BadRequestException({ errors });
     },
   }));
+  // Swagger API documentation setup
+  const config = new DocumentBuilder()
+    .setTitle('Car Rental API Documentation')
+    .setDescription('Endpoints for the Car Rental backend, including users, cars, bookings, and authentication.')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: { persistAuthorization: true },
+    customCss: '.swagger-ui .topbar { display: none }',
+  });
+
   await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();
