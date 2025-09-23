@@ -22,6 +22,9 @@ async function bootstrap() {
       return new BadRequestException({ errors });
     },
   }));
+
+app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+
   // Swagger API documentation setup
   const config = new DocumentBuilder()
     .setTitle('Car Rental API Documentation')

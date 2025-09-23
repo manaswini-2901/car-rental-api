@@ -2,17 +2,20 @@ import {
   Controller, Get, Post, Patch, Delete,
   Body, Param, ParseIntPipe, UseGuards, Query, Req, ForbiddenException
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
 
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
   // --- PUBLIC: create first user (bootstrap Admin)
   @Post()
+  @ApiBody({ type: CreateUserDto })
   create(@Body() body: CreateUserDto) {
     return this.users.create(body);
   }
@@ -40,6 +43,7 @@ export class UsersController {
   // --- SELF OR ADMIN: update a single user
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @ApiBody({ type: UpdateUserDto })
   update(@Req() req: any, @Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto) {
     if (req.userRole !== 'Admin' && req.userId !== id) {
       throw new ForbiddenException({ errors: { auth: 'Not allowed' } });

@@ -2,17 +2,20 @@ import { Controller, Post, Body, Res, Get, Req, UseGuards } from '@nestjs/common
 import { AuthGuard } from './auth.guard';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
+import { ApiBody } from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('login')
+  @ApiBody({ type: LoginDto })
   async login(
-    @Body() body: { email: string; password: string },
+    @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { token, user } = await this.auth.validateAndSign(body.email, body.password);
+    const { token, user } = await this.auth.validateAndSign(loginDto.email, loginDto.password);
 
     // set HTTP-only cookie from env
     const cookieName = process.env.SESSION_COOKIE_NAME || 'crsid';
