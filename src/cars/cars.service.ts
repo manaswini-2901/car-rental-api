@@ -14,40 +14,59 @@ export class CarsService {
     return this.repo.save(car);
   }
 
-  async findFiltered({ q, brand, min, max, available }: {
+  async findFiltered({
+    q, brand, min, max, available, page = 1, pageSize = 10,
+  }: {
     q?: string;
     brand?: string;
     min?: number;
     max?: number;
     available?: boolean;
+    page?: number;
+    pageSize?: number;
   }) {
-    const where: any = {};
+    const whereBase: any = {};
+    if (available !== undefined) whereBase.available = available;
+    if (brand) whereBase.brand = ILike(`%${brand}%`);
 
-    if (brand) where.brand = ILike(brand);
-    if (available !== undefined) where.available = available;
+    if (min != null && max != null) whereBase.pricePerDay = Between(min, max);
+    else if (min != null) whereBase.pricePerDay = MoreThanOrEqual(min);
+    else if (max != null) whereBase.pricePerDay = LessThanOrEqual(max);
 
-    // price
-    if (min != null && max != null) where.pricePerDay = Between(min, max);
-    else if (min != null) where.pricePerDay = MoreThanOrEqual(min);
-    else if (max != null) where.pricePerDay = LessThanOrEqual(max);
+    const skip = (page - 1) * pageSize;
+    const order = { pricePerDay: 'ASC' as const, id: 'ASC' as const };
 
-    // free-text across brand/model/description
+    let data: Car[] = [];
+    let total = 0;
+
     if (q && q.trim()) {
       const s = `%${q.trim()}%`;
-      return this.repo.find({
+      [data, total] = await this.repo.findAndCount({
         where: [
-          { ...where, brand: ILike(s) },
-          { ...where, model: ILike(s) },
-          { ...where, description: ILike(s) },
+          { ...whereBase, brand: ILike(s) },
+          { ...whereBase, model: ILike(s) },
+          { ...whereBase, description: ILike(s) },
         ],
-        order: { pricePerDay: 'ASC', id: 'ASC' },
+        order,
+        skip,
+        take: pageSize,
+      });
+    } else {
+      [data, total] = await this.repo.findAndCount({
+        where: whereBase,
+        order,
+        skip,
+        take: pageSize,
       });
     }
 
-    return this.repo.find({
-      where,
-      order: { pricePerDay: 'ASC', id: 'ASC' },
-    });
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
   }
 
   async findOne(id: number) {

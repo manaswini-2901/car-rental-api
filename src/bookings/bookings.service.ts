@@ -77,6 +77,7 @@ export class BookingsService {
 
   const [rows, total] = await this.bookingRepo.findAndCount({
       where,
+      relations: ['user', 'car'],
       order: { createdAt: 'DESC' },
       skip,
       take,

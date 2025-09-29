@@ -50,13 +50,18 @@ export class CarsController {
     @Query('min') min?: string,
     @Query('max') max?: string,
     @Query('available') available?: string,
+    @Query('page') page: string = '1',
+    @Query('pageSize') pageSize: string = '10',
   ) {
+    const minNum = Number(min), maxNum = Number(max);
     return this.cars.findFiltered({
       q,
       brand,
-      min: min ? Number(min) : undefined,
-      max: max ? Number(max) : undefined,
+      min: Number.isFinite(minNum) ? minNum : undefined,
+      max: Number.isFinite(maxNum) ? maxNum : undefined,
       available: available === 'true' ? true : available === 'false' ? false : undefined,
+      page: Math.max(1, Number(page) || 1),
+      pageSize: Math.min(50, Math.max(1, Number(pageSize) || 10)),
     });
   }
 

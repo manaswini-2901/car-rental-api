@@ -40,17 +40,17 @@ export class AuthController {
     return { success: true };
   }
 
-  @Get('me')
-  // Only keep the correct implementation below
-
-  @Get('me')
-  @UseGuards(AuthGuard)
-  async getProfile(@Req() req: Request) {
-    const { userId, userRole } = req as Request & { userId?: number; userRole?: string };
+@UseGuards(AuthGuard)
+  @Get('profile')
+  profile(@Req() req: any) {
+    // Whatever you store in the session during login:
+    // e.g. req.userId, req.userEmail, req.userRole
     return {
-      id: userId,
-      role: userRole,
-      // add email if you want, but you may need to fetch it from DB
+      id: req.userId,
+      email: req.userEmail,
+      role: req.userRole,
     };
   }
 }
+
+ 

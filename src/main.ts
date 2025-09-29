@@ -6,6 +6,12 @@ const cookieParser = require('cookie-parser');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Enable CORS for frontend with credentials
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  });
   app.use(cookieParser(process.env.SESSION_SECRET)); // <-- read signed cookies
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -23,7 +29,6 @@ async function bootstrap() {
     },
   }));
 
-app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
   // Swagger API documentation setup
   const config = new DocumentBuilder()

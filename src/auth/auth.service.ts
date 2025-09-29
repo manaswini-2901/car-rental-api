@@ -16,8 +16,19 @@ export class AuthService {
     if (!user || user.password !== password) {
       throw new BadRequestException({ errors: { email: 'Invalid email or password' } });
     }
-  // keep payload minimal
-  const token = await this.jwt.signAsync({ sub: user.id, role: user.role });
-  return { user, token };
+
+    // ✅ include email + role in the payload
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = await this.jwt.signAsync(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '1d',
+    });
+
+    return { user, token };
   }
 }

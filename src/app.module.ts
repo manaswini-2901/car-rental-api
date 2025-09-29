@@ -19,8 +19,7 @@ import { BookingsModule } from './bookings/bookings.module';
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       autoLoadEntities: true,   // automatically load entity classes
-  synchronize: true,        // ❗ dev only: auto-create tables
-  logging: true,            // enable TypeORM SQL logging
+      synchronize: true,        // ❗ dev only: auto-create tables
     }),
   UsersModule,
   AuthModule,

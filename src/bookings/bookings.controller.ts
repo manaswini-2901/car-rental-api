@@ -1,23 +1,25 @@
-import {
-  Controller, Post, Get, Patch, Delete,
+import {   Controller, Post, Get, Patch, Delete,
   Body, Param, ParseIntPipe, Query, UseGuards, Req, ForbiddenException
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateBookingDto } from './dto/create-booking.dto';
 
 @Controller('bookings')
 @UseGuards(AuthGuard)
 export class BookingsController {
   constructor(private readonly bookings: BookingsService) {}
 
-  // Any logged-in user (or admin) creates a booking FOR THEMSELF
   @Post()
-  create(@Req() req: any, @Body() body: { carId: number; startDate: string; endDate: string }) {
-    return this.bookings.create(req.userId, Number(body.carId), body.startDate, body.endDate);
-  }
+  create(@Req() req: any, @Body() dto: CreateBookingDto) {
 
+    // TEMP debug (remove later)
+  console.log('POST /bookings dto:', dto, 'userId:', req.userId);
+
+    // dto has carId: number, startDate: string, endDate: string
+    return this.bookings.create(req.userId, dto.carId, dto.startDate, dto.endDate);
+  }
   // List:
   // - Admin: can see all (and filter by userId/carId/status)
   // - User: can only see their own (we force userId = req.userId)
